@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Schema</title>
+    
+</head>
+<body>
+    <h1>faq schema</h1>
+<div id="faqs-form">
+  <button id="add-faq-button">Add FAQ</button>
+  <div id="faqs-container"></div>
+  <button id="generate-button">Generate Schema</button>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    var faqs = [];
+    var faqId = 0;
+    
+    $("#add-faq-button").click(function() {
+      faqId++;
+      var faqHtml = `
+        <div class="faq" id="faq-${faqId}">
+          <label for="question-${faqId}">Question:</label>
+          <input type="text" id="question-${faqId}">
+          <label for="answer-${faqId}">Answer:</label>
+          <input type="text" id="answer-${faqId}">
+          <button class="remove-faq-button">Remove FAQ</button>
+        </div>
+      `;
+      $("#faqs-container").append(faqHtml);
+    });
+    
+    $("#faqs-container").on("click", ".remove-faq-button", function() {
+      var faqId = $(this).closest(".faq").attr("id").split("-")[1];
+      $(`#faq-${faqId}`).remove();
+    });
+    
+    $("#generate-button").click(function() {
+      faqs = [];
+      $(".faq").each(function() {
+        var faqId = $(this).attr("id").split("-")[1];
+        var question = $(`#question-${faqId}`).val();
+        var answer = $(`#answer-${faqId}`).val();
+        faqs.push({ question: question, answer: answer });
+      });
+      
+      var schema = generateFAQSchema(faqs);
+      console.log(schema);
+    });
+  });
+  
+  function generateFAQSchema(faqs) {
+    var schema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": []
+    };
+  
+    faqs.forEach(function(faq) {
+      var question = {
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      };
+      schema.mainEntity.push(question);
+    });
+  
+    return JSON.stringify(schema, null, 2);
+  }
+</script>
+
+
+
+
+</body>
+</html>
